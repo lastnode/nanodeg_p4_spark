@@ -41,34 +41,34 @@ def process_song_data(spark, input_data, output_data):
 
     # extract columns to create songs table
     songs_table = spark.sql("""
-                            select distinct 
-                                songs.song_id, 
-                                songs.title, 
-                                songs.artist_id, 
-                                songs.year, 
-                                songs.duration 
-                            from songs 
-                            where song_id IS NOT NULL """)
-    
+                            select distinct
+                                songs.song_id,
+                                songs.title,
+                                songs.artist_id,
+                                songs.year,
+                                songs.duration
+                            from songs
+                            where song_id IS NOT NULL""")
+   
     # write songs table to parquet files partitioned by year and artist
-    songs_table.write.parquet("s3a://sparkifytest/songs_table.parquet")
+    songs_table.write.mode('overwrite').parquet("s3a://sparkifytest/songs_table.parquet")
 
-       # create Spark SQL `artists` table
+    # create Spark SQL `artists` table
     song_df.createOrReplaceTempView("artists")
 
     # extract columns to create artists table
     artists_table = spark.sql("""
-                            select  distinct
+                            select distinct
                                 artists.artist_id as artist_id,
                                 artists.artist_name as name,
                                 artists.artist_location as location,
                                 artists.artist_latitude as latitude,
-                                artists.artist_longitude as longitude)
+                                artists.artist_longitude as longitude
                             from artists
-                            where artist_id IS NOT NULL """)
-    
+                            where artist_id IS NOT NULL""")
+   
     # write artists table to parquet files
-    artists_table.write.parquet("s3a://sparkifytest/artists_table.parquet")
+    songs_table.write.mode('overwrite').parquet("s3a://sparkifytest/artists_table.parquet")
 
 
 # def process_log_data(spark, input_data, output_data):
