@@ -31,13 +31,13 @@ def process_song_data(spark, input_data, output_data, cliargs):
 
     # Full path to all the song data files.
 
-    full_path = 'song_data/*/*/*/*.json'
+    full_data_path = 'song_data/*/*/*/*.json'
 
     # Path to a subset of the data, so we have the option of using it 
     # for testing, as suggested by Tran Nguyen here -
     # https://towardsdatascience.com/some-issues-when-building-an-aws-data-lake-using-spark-and-how-to-deal-with-these-issues-529ce246ba59
 
-    subset_path = 'song_data/A/A/A/*.json'
+    subset_data_path = 'song_data/A/A/A/*.json'
 
     # Read from argparse arguments to see if we want to load a subset of
     # the data (for testing purposes) or load all the data from s3. This 
@@ -45,9 +45,9 @@ def process_song_data(spark, input_data, output_data, cliargs):
     # resource intensive.
 
     if cliargs.run_subset:
-        song_df = spark.read.json(os.path.join(input_data, subset_path))
+        song_df = spark.read.json(os.path.join(input_data, subset_data_path))
     else:
-        song_df = spark.read.json(os.path.join(input_data, full_path))
+        song_df = spark.read.json(os.path.join(input_data, full_data_path))
 
     # create Spark SQL `songs` table
     song_df.createOrReplaceTempView("songs")
@@ -84,45 +84,69 @@ def process_song_data(spark, input_data, output_data, cliargs):
     songs_table.write.mode('overwrite').parquet("s3a://sparkifytest/artists_table.parquet")
 
 
-# def process_log_data(spark, input_data, output_data):
+def process_log_data(spark, input_data, output_data, cliargs):
 
-#     get filepath to log data file
-#     log_data =
+    # Full path to all the song data files.
 
-#     # read log data file
-#     df = 
+    full_data_path = 'log_data/*/*/*.json'
+
+    # Path to a subset of the data, so we have the option of using it 
+    # for testing, as suggested by Tran Nguyen here -
+    # https://towardsdatascience.com/some-issues-when-building-an-aws-data-lake-using-spark-and-how-to-deal-with-these-issues-529ce246ba59
+
+    subset_data_path = 'log_data/2018/11/*.json'
+
+    # Read from argparse arguments to see if we want to load a subset of
+    # the data (for testing purposes) or load all the data from s3. This 
+    # option has been given because loading all the data from s3 can be
+    # resource intensive.
+
+    if cliargs.run_subset:
+        logs_df = spark.read.json(os.path.join(input_data, subset_data_path))
+    else:
+        logs_df = spark.read.json(os.path.join(input_data, full_data_path))
+
+    # create Spark SQL `songs` table
+    logs_df.createOrReplaceTempView("logs")
+
+    logs_df.printSchema()
+
+    # extract columns for users table    
+    users_table = spark.sql("""
+                            select distinct
+                                logs.userId as user_id,
+                                logs.firstName as first_name,
+                                logs.lastName as last_name,
+                                logs.gender as gender,
+                                logs.level as level
+                            from logs
+                            where logs.userId IS NOT NULL""")
     
-#     # filter by actions for song plays
-#     df = 
+    # write users table to parquet files
+    users_table.write.mode('overwrite').parquet(output_data + "users")
 
-#     # extract columns for users table    
-#     artists_table = 
+    # # create timestamp column from original timestamp column
+    # get_timestamp = udf()
+    # df = 
     
-#     # write users table to parquet files
-#     artists_table
-
-#     # create timestamp column from original timestamp column
-#     get_timestamp = udf()
-#     df = 
+    # # create datetime column from original timestamp column
+    # get_datetime = udf()
+    # df = 
     
-#     # create datetime column from original timestamp column
-#     get_datetime = udf()
-#     df = 
+    # # extract columns to create time table
+    # time_table = 
     
-#     # extract columns to create time table
-#     time_table = 
-    
-#     # write time table to parquet files partitioned by year and month
-#     time_table
+    # # write time table to parquet files partitioned by year and month
+    # time_table
 
-#     # read in song data to use for songplays table
-#     song_df = 
+    # # read in song data to use for songplays table
+    # song_df = 
 
-#     # extract columns from joined song and log datasets to create songplays table 
-#     songplays_table = 
+    # # extract columns from joined song and log datasets to create songplays table 
+    # songplays_table = 
 
-#     # write songplays table to parquet files partitioned by year and month
-#     songplays_table
+    # # write songplays table to parquet files partitioned by year and month
+    # songplays_table
 
 
 def main():
@@ -144,10 +168,10 @@ def main():
 
     spark = create_spark_session()
     input_data = "s3a://udacity-dend/"
-    output_data = ""
+    output_data = "s3a://sparkifytest/"
     
-    process_song_data(spark, input_data, output_data, cliargs)    
-    #process_log_data(spark, input_data, output_data)
+    #process_song_data(spark, input_data, output_data, cliargs)    
+    process_log_data(spark, input_data, output_data, cliargs)
 
 
 if __name__ == "__main__":
