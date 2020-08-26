@@ -64,7 +64,7 @@ def process_song_data(spark, input_data, output_data, cliargs):
                             where song_id IS NOT NULL""")
  
     # write songs table to parquet files partitioned by year and artist
-    songs_table.write.mode('overwrite').parquet("s3a://sparkifytest/songs_table.parquet")
+    songs_table.write.mode('overwrite').parquet(output_data + "songs")
 
     # create Spark SQL `artists` table
     song_df.createOrReplaceTempView("artists")
@@ -81,7 +81,7 @@ def process_song_data(spark, input_data, output_data, cliargs):
                             where artist_id IS NOT NULL""")
 
     # write artists table to parquet files
-    songs_table.write.mode('overwrite').parquet("s3a://sparkifytest/artists_table.parquet")
+    artists_table.write.mode('overwrite').parquet(output_data + "artists")
 
 
 def process_log_data(spark, input_data, output_data, cliargs):
@@ -170,7 +170,7 @@ def main():
     input_data = "s3a://udacity-dend/"
     output_data = "s3a://sparkifytest/"
     
-    #process_song_data(spark, input_data, output_data, cliargs)    
+    process_song_data(spark, input_data, output_data, cliargs)    
     process_log_data(spark, input_data, output_data, cliargs)
 
 
