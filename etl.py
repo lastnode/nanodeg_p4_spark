@@ -126,9 +126,22 @@ def process_log_data(spark, input_data, output_data, cliargs):
     users_table.write.mode('overwrite').parquet(output_data + "users")
 
     # # create timestamp column from original timestamp column
-    # get_timestamp = udf()
-    # df = 
-    
+    time_table = spark.sql("""
+                            select
+                                time_subquery.time as start_time,
+                                hour(time_subquery.time) as hour,
+                                dayofmonth(time_subquery.time) as day,
+                                weekofyear(time_subquery.time) as week,
+                                month(time_subquery.time) as month,
+                                year(time_subquery.time) as year,
+                                dayofweek(time_subquery.time) as weekday
+                            from (
+                                select
+                                    to_timestamp(logs.ts/1000) as time
+                                from logs
+                                where logs.ts is not null
+                                ) time_subquery
+                                """)
     # # create datetime column from original timestamp column
     # get_datetime = udf()
     # df = 
@@ -137,7 +150,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
     # time_table = 
     
     # # write time table to parquet files partitioned by year and month
-    # time_table
+    time_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "time")
 
     # # read in song data to use for songplays table
     # song_df = 
