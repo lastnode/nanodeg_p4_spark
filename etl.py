@@ -121,6 +121,8 @@ def process_log_data(spark, input_data, output_data, cliargs):
                                 logs.level as level
                             from logs
                             where logs.userId IS NOT NULL""")
+
+    users_table.createOrReplaceTempView("user")                        
     
     # write users table to parquet files
     users_table.write.mode('overwrite').parquet(output_data + "users")
@@ -141,8 +143,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
                                     month(time_cte.time) as month,
                                     year(time_cte.time) as year,
                                     dayofweek(time_cte.time) as weekday
-                                from time_cte
-                                """)
+                                from time_cte""")
     # # create datetime column from original timestamp column
     # get_datetime = udf()
     # df = 
@@ -157,11 +158,26 @@ def process_log_data(spark, input_data, output_data, cliargs):
     # song_df = 
 
     # # extract columns from joined song and log datasets to create songplays table 
-    # songplays_table = 
+    songplays_table = spark.sql("""
+                                        select
+                                        monotonically_increasing_id() as songplay_id,
+                                        logs.userId as user_id,
+                                        logs.level as level,
+                                        songs.song_id as song_id,
+                                        songs.artist_id,
+                                        logs.sessionId as session_id,
+                                        logs.location,
+                                        month(to_timestamp(logs.ts/1000)) as month,
+                                        year(to_timestamp(logs.ts/1000)) as year
+                                    from logs
 
+                                    inner join songs on logs.song = songs.title                     
+
+    """)
     # # write songplays table to parquet files partitioned by year and month
     # songplays_table
 
+    songplays_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "songplays")
 
 def main():
     parser = argparse.ArgumentParser(
