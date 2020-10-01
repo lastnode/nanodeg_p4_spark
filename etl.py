@@ -127,20 +127,21 @@ def process_log_data(spark, input_data, output_data, cliargs):
 
     # # create timestamp column from original timestamp column
     time_table = spark.sql("""
-                            select
-                                time_subquery.time as start_time,
-                                hour(time_subquery.time) as hour,
-                                dayofmonth(time_subquery.time) as day,
-                                weekofyear(time_subquery.time) as week,
-                                month(time_subquery.time) as month,
-                                year(time_subquery.time) as year,
-                                dayofweek(time_subquery.time) as weekday
-                            from (
+                            with time_cte as (
                                 select
                                     to_timestamp(logs.ts/1000) as time
                                 from logs
-                                where logs.ts is not null
-                                ) time_subquery
+                                where logs.ts is not null  
+                                )
+                                select
+                                    time_cte.time as start_time,
+                                    hour(time_cte.time) as hour,
+                                    dayofmonth(time_cte.time) as day,
+                                    weekofyear(time_cte.time) as week,
+                                    month(time_cte.time) as month,
+                                    year(time_cte.time) as year,
+                                    dayofweek(time_cte.time) as weekday
+                                from time_cte
                                 """)
     # # create datetime column from original timestamp column
     # get_datetime = udf()
