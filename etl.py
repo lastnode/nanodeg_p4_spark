@@ -10,8 +10,8 @@ from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, dat
 config = configparser.ConfigParser()
 config.read('dl.cfg')
 
-os.environ['AWS_ACCESS_KEY_ID']=config['AWS']['AWS_ACCESS_KEY_ID']
-os.environ['AWS_SECRET_ACCESS_KEY']=config['AWS']['AWS_SECRET_ACCESS_KEY']
+os.environ['AWS_ACCESS_KEY_ID'] = config['AWS']['AWS_ACCESS_KEY_ID']
+os.environ['AWS_SECRET_ACCESS_KEY'] = config['AWS']['AWS_SECRET_ACCESS_KEY']
 
 
 def create_spark_session():
@@ -159,7 +159,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
 
     # # extract columns from joined song and log datasets to create songplays table 
     songplays_table = spark.sql("""
-                                        select
+                                    select
                                         monotonically_increasing_id() as songplay_id,
                                         logs.userId as user_id,
                                         logs.level as level,
@@ -197,8 +197,8 @@ def main():
     cliargs, _ = parser.parse_known_args()
 
     spark = create_spark_session()
-    input_data = "s3a://udacity-dend/"
-    output_data = "s3a://sparkifytest/"
+    input_data = config.get('DATA', 'INPUT_DATA')
+    output_data = config.get('DATA', 'OUTPUT_DATA')
     
     process_song_data(spark, input_data, output_data, cliargs)    
     process_log_data(spark, input_data, output_data, cliargs)
