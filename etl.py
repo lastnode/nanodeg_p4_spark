@@ -109,6 +109,8 @@ def process_log_data(spark, input_data, output_data, cliargs):
     # create Spark SQL `songs` table
     logs_df.createOrReplaceTempView("logs")
 
+    logs_df = logs_df.filter(logs_df.page == 'NextSong')
+    
     logs_df.printSchema()
 
     # extract columns for users table    
@@ -197,8 +199,8 @@ def main():
     cliargs, _ = parser.parse_known_args()
 
     spark = create_spark_session()
-    input_data = "s3a://udacity-dend/"
-    output_data = "s3a://sparkify89/"
+    input_data = 's3a://udacity-dend/'
+    output_data = 's3a://sparkifytest/'
    
     process_song_data(spark, input_data, output_data, cliargs)    
     process_log_data(spark, input_data, output_data, cliargs)
