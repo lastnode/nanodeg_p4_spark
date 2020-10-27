@@ -64,7 +64,7 @@ def process_song_data(spark, input_data, output_data, cliargs):
                             where song_id IS NOT NULL""")
  
     # write songs table to parquet files partitioned by year and artist
-    songs_table.write.mode('overwrite').partitionBy("year", "artist_id").parquet(output_data + "songs")
+    songs_table.write.mode('overwrite').partitionBy("year", "artist_id").parquet(output_data + "songs/")
 
     # create Spark SQL `artists` table
     song_df.createOrReplaceTempView("artists")
@@ -81,7 +81,7 @@ def process_song_data(spark, input_data, output_data, cliargs):
                                 where artist_id IS NOT NULL""")
 
     # write artists table to parquet files
-    artists_table.write.mode('overwrite').parquet(output_data + "artists")
+    artists_table.write.mode('overwrite').parquet(output_data + "artists/")
 
 
 def process_log_data(spark, input_data, output_data, cliargs):
@@ -125,7 +125,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
     users_table.createOrReplaceTempView("user")                        
     
     # write users table to parquet files
-    users_table.write.mode('overwrite').parquet(output_data + "users")
+    users_table.write.mode('overwrite').parquet(output_data + "users/")
 
     # # create timestamp column from original timestamp column
     time_table = spark.sql("""
@@ -152,7 +152,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
     # time_table = 
     
     # # write time table to parquet files partitioned by year and month
-    time_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "time")
+    time_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "time/")
 
     # # read in song data to use for songplays table
     # song_df = 
@@ -177,7 +177,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
     # # write songplays table to parquet files partitioned by year and month
     # songplays_table
 
-    songplays_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "songplays")
+    songplays_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "songplays/")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -198,7 +198,7 @@ def main():
 
     spark = create_spark_session()
     input_data = "s3a://udacity-dend/"
-    output_data = "s3a://sparkifytest/"
+    output_data = "s3a://sparkify89/"
    
     process_song_data(spark, input_data, output_data, cliargs)    
     process_log_data(spark, input_data, output_data, cliargs)
