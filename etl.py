@@ -71,14 +71,14 @@ def process_song_data(spark, input_data, output_data, cliargs):
 
     # extract columns to create artists table
     artists_table = spark.sql("""
-                            select distinct
-                                artists.artist_id as artist_id,
-                                artists.artist_name as name,
-                                artists.artist_location as location,
-                                artists.artist_latitude as latitude,
-                                artists.artist_longitude as longitude
-                            from artists
-                            where artist_id IS NOT NULL""")
+                                select distinct
+                                    artists.artist_id as artist_id,
+                                    artists.artist_name as name,
+                                    artists.artist_location as location,
+                                    artists.artist_latitude as latitude,
+                                    artists.artist_longitude as longitude
+                                from artists
+                                where artist_id IS NOT NULL""")
 
     # write artists table to parquet files
     artists_table.write.mode('overwrite').parquet(output_data + "artists")
@@ -134,16 +134,16 @@ def process_log_data(spark, input_data, output_data, cliargs):
                                     to_timestamp(logs.ts/1000) as time
                                 from logs
                                 where logs.ts is not null  
-                                )
-                                select
-                                    time_cte.time as start_time,
-                                    hour(time_cte.time) as hour,
-                                    dayofmonth(time_cte.time) as day,
-                                    weekofyear(time_cte.time) as week,
-                                    month(time_cte.time) as month,
-                                    year(time_cte.time) as year,
-                                    dayofweek(time_cte.time) as weekday
-                                from time_cte""")
+                            )
+                            select
+                                time_cte.time as start_time,
+                                hour(time_cte.time) as hour,
+                                dayofmonth(time_cte.time) as day,
+                                weekofyear(time_cte.time) as week,
+                                month(time_cte.time) as month,
+                                year(time_cte.time) as year,
+                                dayofweek(time_cte.time) as weekday
+                            from time_cte""")
     # # create datetime column from original timestamp column
     # get_datetime = udf()
     # df = 
@@ -159,7 +159,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
 
     # # extract columns from joined song and log datasets to create songplays table 
     songplays_table = spark.sql("""
-                                        select
+                                    select
                                         monotonically_increasing_id() as songplay_id,
                                         logs.userId as user_id,
                                         logs.level as level,
@@ -199,7 +199,7 @@ def main():
     spark = create_spark_session()
     input_data = "s3a://udacity-dend/"
     output_data = "s3a://sparkifytest/"
-    
+   
     process_song_data(spark, input_data, output_data, cliargs)    
     process_log_data(spark, input_data, output_data, cliargs)
 
