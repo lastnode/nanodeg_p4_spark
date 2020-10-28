@@ -58,7 +58,7 @@ def process_song_data(spark, input_data, output_data, cliargs):
     1) `songs`
     2) `artists`
 
-    Paramters:
+    Parameters:
     - spark - The spark session that this function will use to connect to Spark.
     - input_data - The S3a path where the `song_data` directory can be found.
     - output_data - Where the parquet files will be written to.
@@ -133,7 +133,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
     2) `time`
     3) `songplays`
 
-    Paramters:
+    Parameters:
     - spark - The spark session that this function will use to connect to Spark.
     - input_data - The S3a path where the `song_data` directory can be found.
     - output_data - Where the parquet files will be written to.
