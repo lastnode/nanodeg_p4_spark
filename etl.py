@@ -50,7 +50,7 @@ def process_song_data(spark, input_data, output_data, cliargs):
         song_df = spark.read.json(os.path.join(input_data, full_data_path))
 
     # create Spark SQL `songs` table
-    song_df.createOrReplaceTempView("songs")
+    song_df.createOrReplaceTempView("song_data")
 
     # extract columns to create songs table
     songs_table = spark.sql("""
@@ -60,7 +60,7 @@ def process_song_data(spark, input_data, output_data, cliargs):
                                 songs.artist_id,
                                 songs.year,
                                 songs.duration
-                            from songs
+                            from song_data songs
                             where song_id IS NOT NULL""")
  
     # write songs table to parquet files partitioned by year and artist
@@ -77,7 +77,7 @@ def process_song_data(spark, input_data, output_data, cliargs):
                                     artists.artist_location as location,
                                     artists.artist_latitude as latitude,
                                     artists.artist_longitude as longitude
-                                from artists
+                                from song_data artists
                                 where artist_id IS NOT NULL""")
 
     # write artists table to parquet files
@@ -107,7 +107,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
         logs_df = spark.read.json(os.path.join(input_data, full_data_path))
 
     # create Spark SQL `logs` table
-    logs_df.createOrReplaceTempView("logs")
+    logs_df.createOrReplaceTempView("log_data")
 
     logs_df = logs_df.filter(logs_df.page == 'NextSong')
     
@@ -121,7 +121,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
                                 logs.lastName as last_name,
                                 logs.gender as gender,
                                 logs.level as level
-                            from logs
+                            from log_data logs
                             where logs.userId IS NOT NULL""")
 
     users_table.createOrReplaceTempView("user")                        
@@ -134,7 +134,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
                             with time_cte as (
                                 select
                                     to_timestamp(logs.ts/1000) as time
-                                from logs
+                                from log_data logs
                                 where logs.ts is not null  
                             )
                             select
@@ -150,7 +150,6 @@ def process_log_data(spark, input_data, output_data, cliargs):
     # write time table to parquet files partitioned by year and month
     time_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "time/")
 
-
     # extract columns from joined song and log datasets to create songplays table 
     songplays_table = spark.sql("""
                                     select
@@ -163,10 +162,10 @@ def process_log_data(spark, input_data, output_data, cliargs):
                                         logs.location,
                                         month(to_timestamp(logs.ts/1000)) as month,
                                         year(to_timestamp(logs.ts/1000)) as year
-                                    from logs
+                                    from log_data logs
 
-                                    inner join songs on logs.song = songs.title and
-                                                logss.artist = songs.artist_name                     
+                                    inner join song_data songs on logs.song = songs.title and
+                                                logs.artist = songs.artist_name                     
 
     """)
     # write songplays table to parquet files partitioned by year and month
