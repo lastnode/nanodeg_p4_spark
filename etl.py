@@ -106,7 +106,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
     else:
         logs_df = spark.read.json(os.path.join(input_data, full_data_path))
 
-    # create Spark SQL `songs` table
+    # create Spark SQL `logs` table
     logs_df.createOrReplaceTempView("logs")
 
     logs_df = logs_df.filter(logs_df.page == 'NextSong')
@@ -129,7 +129,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
     # write users table to parquet files
     users_table.write.mode('overwrite').parquet(output_data + "users/")
 
-    # # create timestamp column from original timestamp column
+    # create timestamp column from original timestamp column
     time_table = spark.sql("""
                             with time_cte as (
                                 select
@@ -146,20 +146,12 @@ def process_log_data(spark, input_data, output_data, cliargs):
                                 year(time_cte.time) as year,
                                 dayofweek(time_cte.time) as weekday
                             from time_cte""")
-    # # create datetime column from original timestamp column
-    # get_datetime = udf()
-    # df = 
-    
-    # # extract columns to create time table
-    # time_table = 
-    
-    # # write time table to parquet files partitioned by year and month
+
+    # write time table to parquet files partitioned by year and month
     time_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "time/")
 
-    # # read in song data to use for songplays table
-    # song_df = 
 
-    # # extract columns from joined song and log datasets to create songplays table 
+    # extract columns from joined song and log datasets to create songplays table 
     songplays_table = spark.sql("""
                                     select
                                         monotonically_increasing_id() as songplay_id,
@@ -173,11 +165,11 @@ def process_log_data(spark, input_data, output_data, cliargs):
                                         year(to_timestamp(logs.ts/1000)) as year
                                     from logs
 
-                                    inner join songs on logs.song = songs.title                     
+                                    inner join songs on logs.song = songs.title and
+                                                logss.artist = songs.artist_name                     
 
     """)
-    # # write songplays table to parquet files partitioned by year and month
-    # songplays_table
+    # write songplays table to parquet files partitioned by year and month
 
     songplays_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "songplays/")
 
