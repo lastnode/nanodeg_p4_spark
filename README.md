@@ -37,9 +37,15 @@ Running the ETL process for this full dataset can take time. Thus, [as suggested
 
  If you would like to run the `etl.py` script on a subset of the data, you can do this by running:
 
-`etl.py --run-subset`
+`spark-submit etl.py --run-subset`
 
 This will only load and transform a subset of the data and can help isolate issues in your ETL process without having to process all the data every single time.
+
+### Production
+
+When you are ready to run the ETL process on all your data, you can just execute the whole `etl.py` file via:
+
+`spark-submit etl.py`
 
 ## Schema
 
