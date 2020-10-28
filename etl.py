@@ -180,9 +180,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
                                 logs.level as level
                             from log_data logs
                             where logs.userId IS NOT NULL""")
-
-    users_table.createOrReplaceTempView("user")                        
-   
+  
     # write users table to parquet files
     users_table.write.mode('overwrite').parquet(output_data + "users/")
 
@@ -211,14 +209,16 @@ def process_log_data(spark, input_data, output_data, cliargs):
     songplays_table = spark.sql("""
                                     select
                                         monotonically_increasing_id() as songplay_id,
+                                        to_timestamp(logs.ts/1000)) as start_time,
+                                        month(to_timestamp(logs.ts/1000)) as month,
+                                        year(to_timestamp(logs.ts/1000)) as year,
                                         logs.userId as user_id,
                                         logs.level as level,
                                         songs.song_id as song_id,
                                         songs.artist_id,
                                         logs.sessionId as session_id,
                                         logs.location,
-                                        month(to_timestamp(logs.ts/1000)) as month,
-                                        year(to_timestamp(logs.ts/1000)) as year
+                                        logs.userAgent as user_agent
                                     from log_data logs
 
                                     inner join song_data songs on logs.song = songs.title and
