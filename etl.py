@@ -96,7 +96,7 @@ def process_song_data(spark, input_data, output_data, cliargs):
     # extract columns to create songs table
     songs_table = spark.sql("""
                             select
-                                distinct songs.song_id,
+                                songs.song_id,
                                 songs.title,
                                 songs.artist_id,
                                 songs.year,
@@ -247,6 +247,7 @@ def main():
     cliargs, _ = parser.parse_known_args()
 
     spark = create_spark_session()
+    
     input_data = 's3a://udacity-dend/'
     output_data = 's3a://sparkifytest/'
    
