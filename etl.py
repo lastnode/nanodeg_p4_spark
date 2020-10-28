@@ -12,7 +12,7 @@ import configparser
 from datetime import datetime
 import os
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col
+from pyspark.sql.functions import udf
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
 
 
@@ -33,7 +33,7 @@ def create_spark_session():
     None
 
     Returns:
-    spark session
+    A Spark Session Object
     """
 
     spark = SparkSession \
@@ -74,14 +74,14 @@ def process_song_data(spark, input_data, output_data, cliargs):
 
     full_data_path = 'song_data/*/*/*/*.json'
 
-    # Path to a subset of the data, so we have the option of using it 
+    # Path to a subset of the data, so we have the option of using it
     # for testing, as suggested by Tran Nguyen here -
     # https://towardsdatascience.com/some-issues-when-building-an-aws-data-lake-using-spark-and-how-to-deal-with-these-issues-529ce246ba59
 
     subset_data_path = 'song_data/A/A/A/*.json'
 
     # Read from argparse arguments to see if we want to load a subset of
-    # the data (for testing purposes) or load all the data from s3. This 
+    # the data (for testing purposes) or load all the data from s3. This
     # option has been given because loading all the data from s3 can be
     # resource intensive.
 
@@ -182,7 +182,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
                             where logs.userId IS NOT NULL""")
 
     users_table.createOrReplaceTempView("user")                        
-    
+   
     # write users table to parquet files
     users_table.write.mode('overwrite').parquet(output_data + "users/")
 
@@ -230,6 +230,25 @@ def process_log_data(spark, input_data, output_data, cliargs):
     songplays_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "songplays/")
 
 def main():
+
+    """
+    The main function of the ETL script. Reads command line
+    arguments via argparse, to see whether the user wants to
+    run the ETL process on a subset of the data, or on the
+    full data set.
+
+    Creates a Spark Session and passed it to the two main
+    functions of this script:
+
+    1) process_song_data - loads, transforms and outputs song data
+    2) process_log_data - loads, transforms and outputs log data
+    
+    Params: 
+    None
+
+    Returns:
+    None
+    """
     parser = argparse.ArgumentParser(
         prog='etl.py',
         description="""ETL Script that extracts data from
@@ -247,10 +266,10 @@ def main():
     cliargs, _ = parser.parse_known_args()
 
     spark = create_spark_session()
-    
+
     input_data = 's3a://udacity-dend/'
     output_data = 's3a://sparkifytest/'
-   
+
     process_song_data(spark, input_data, output_data, cliargs)    
     process_log_data(spark, input_data, output_data, cliargs)
 
