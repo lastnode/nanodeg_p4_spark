@@ -1,3 +1,12 @@
+"""
+Main ETL script that is run in Spark via `spark-submit`.
+Loads the `.json` files in the `song_data` and `log_data` S3
+folders into Spark and processes them using Spark SQL.
+
+It then outputs the final tables back to S3 as partitioned
+parquet files.
+"""
+
 import argparse
 import configparser
 from datetime import datetime
@@ -15,19 +24,51 @@ os.environ['AWS_SECRET_ACCESS_KEY']=config['AWS']['AWS_SECRET_ACCESS_KEY']
 
 
 def create_spark_session():
+
+    """
+    Creates a Spark Session and returns it
+    so that other functions can use it.
+
+    Paramters:
+    None
+
+    Returns:
+    spark session
+    """
+
     spark = SparkSession \
         .builder \
         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0") \
         .getOrCreate()
     
-    # As suggested by Tran Nguyen here -
+    # Setting the MapReduce algorithm to v2, as suggested by Tran Nguyen here -
     # https://towardsdatascience.com/some-issues-when-building-an-aws-data-lake-using-spark-and-how-to-deal-with-these-issues-529ce246ba59
     spark.conf.set("mapreduce.fileoutputcommitter.algorithm.version", "2") 
    
     return spark
 
 
-def process_song_data(spark, input_data, output_data, cliargs):
+def process_song_data(spark_session, input_data, output_data, cliargs):
+
+    """
+    Loads `song_data` files from S3 into Spark, transforms them via Spark SQL 
+    and then outputs them to a specified S3 output directory as parquet files.
+
+    Creates two output tables:
+    1) `songs`
+    2) `artists`
+
+    Paramters:
+    - spark_session - The spark session that this function will use to connect to Spark.
+    - input_data - The S3a path where the `song_data` directory can be found.
+    - output_data - Where the parquet files will be written to.
+    - cliargs - The CLI arguments passed in from argparse. These arguments allow the
+                user to select whether to run a full ETL process or just test it on
+                a subset of data first.
+
+    Returns:
+    None
+    """
 
     # Full path to all the song data files.
 
@@ -54,8 +95,8 @@ def process_song_data(spark, input_data, output_data, cliargs):
 
     # extract columns to create songs table
     songs_table = spark.sql("""
-                            select distinct
-                                songs.song_id,
+                            select
+                                distinct songs.song_id,
                                 songs.title,
                                 songs.artist_id,
                                 songs.year,
@@ -68,8 +109,8 @@ def process_song_data(spark, input_data, output_data, cliargs):
 
     # extract columns to create artists table
     artists_table = spark.sql("""
-                                select distinct
-                                    artists.artist_id as artist_id,
+                                select 
+                                    distinct artists.artist_id as artist_id,
                                     artists.artist_name as name,
                                     artists.artist_location as location,
                                     artists.artist_latitude as latitude,
@@ -81,7 +122,28 @@ def process_song_data(spark, input_data, output_data, cliargs):
     artists_table.write.mode('overwrite').parquet(output_data + "artists/")
 
 
-def process_log_data(spark, input_data, output_data, cliargs):
+def process_log_data(spark_session, input_data, output_data, cliargs):
+
+    """
+    Loads `log_data` files from S3 into Spark, transforms them via Spark SQL 
+    and then outputs them to a specified S3 output directory as parquet files.
+
+    Creates three output tables:
+    1) `users`
+    2) `time`
+    3) `songplays`
+
+    Paramters:
+    - spark_session - The spark session that this function will use to connect to Spark.
+    - input_data - The S3a path where the `song_data` directory can be found.
+    - output_data - Where the parquet files will be written to.
+    - cliargs - The CLI arguments passed in from argparse. These arguments allow the
+                user to select whether to run a full ETL process or just test it on
+                a subset of data first.
+                
+    Returns:
+    None
+    """
 
     # Full path to all the song data files.
 
@@ -104,16 +166,14 @@ def process_log_data(spark, input_data, output_data, cliargs):
         logs_df = spark.read.json(os.path.join(input_data, full_data_path))
 
     # create Spark SQL `logs` table
-    logs_df.createOrReplaceTempView("log_data")
-
     logs_df = logs_df.filter(logs_df.page == 'NextSong')
-    
-    logs_df.printSchema()
 
+    logs_df.createOrReplaceTempView("log_data")
+    
     # extract columns for users table    
     users_table = spark.sql("""
-                            select distinct
-                                logs.userId as user_id,
+                            select 
+                                distinct logs.userId as user_id,
                                 logs.firstName as first_name,
                                 logs.lastName as last_name,
                                 logs.gender as gender,
@@ -162,7 +222,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
                                     from log_data logs
 
                                     inner join song_data songs on logs.song = songs.title and
-                                                logs.artist = songs.artist_name                     
+                                                                logs.artist = songs.artist_name                     
 
     """)
     # write songplays table to parquet files partitioned by year and month
@@ -186,12 +246,12 @@ def main():
 
     cliargs, _ = parser.parse_known_args()
 
-    spark = create_spark_session()
+    spark_session = create_spark_session()
     input_data = 's3a://udacity-dend/'
     output_data = 's3a://sparkifytest/'
    
-    process_song_data(spark, input_data, output_data, cliargs)    
-    process_log_data(spark, input_data, output_data, cliargs)
+    process_song_data(spark_session, input_data, output_data, cliargs)    
+    process_log_data(spark_session, input_data, output_data, cliargs)
 
 
 if __name__ == "__main__":
