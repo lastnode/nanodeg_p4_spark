@@ -209,7 +209,7 @@ def process_log_data(spark, input_data, output_data, cliargs):
     songplays_table = spark.sql("""
                                     select
                                         monotonically_increasing_id() as songplay_id,
-                                        to_timestamp(logs.ts/1000)) as start_time,
+                                        to_timestamp(logs.ts/1000) as start_time,
                                         month(to_timestamp(logs.ts/1000)) as month,
                                         year(to_timestamp(logs.ts/1000)) as year,
                                         logs.userId as user_id,

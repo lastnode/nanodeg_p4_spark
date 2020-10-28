@@ -10,8 +10,8 @@ Having these data stored as `.parquet` files means they can be easily loaded int
 # Files
 ```
 - README.md -- this file
-- etl.py - the main ETL script that interacts with Spark to create the paraquet files
-- dl.cfg - configuration file where AWS connection details need to be entered
+- etl.py -- the main ETL script that interacts with Spark to create the paraquet files
+- dl.cfg -- configuration file where AWS connection details need to be entered
 ```
 
 ## Setup
@@ -50,7 +50,7 @@ When you are ready to run the ETL process on all your data, you can just execute
 ## Schema
 
 ### Fact Table
-- `songplays` - a list of times users played a song, extracted from both the `song_data` and `log_data` JSON files: `songplay_id`, `start_time`, `month`, `year`, `user_id`, `level`, `song_id`, `artist_id`, `session_id`, `location`, `user_agent`
+- `songplays` - a list of times users played a song, extracted from both the `song_data` and `log_data` JSON files: `songplay_id`, `start_time`, `month`, `year`, `user_id`, `level`, `song_id`, `artist_id`, `session_id`, `location`, `user_agent` 
 
 ### Dimension Tables
 - `users` - a list of users, extracted from the `log_data` JSON files: `user_id`, `first_name`, `last_name`, `gender`, `level`
