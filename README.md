@@ -14,6 +14,32 @@ These log files are stored in two [Amazon S3](https://aws.amazon.com/s3/) direct
 
 # Setup
 
+## Set up server
+In order to run these Python scripts, you will first need to install Python 3 and [Apache Spark](https://spark.apache.org/downloads.html) on your server, and then install the following Python modules via [pip](https://pypi.org/project/pip/) or [anaconda](https://www.anaconda.com/products/individual):
+
+- [pyspark](https://pypi.org/project/pyspark/) - a Pyspark adapter for Python
+
+To install these via `pip` you can run:
+
+`pip install pyspark`
+
+Spinning up an [Apache Spark cluster on Amazon EMR](https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-spark.html) may be a quicker way to set all this up.
+
+## Move ETL files over to Spark cluster
 Please move over all files in this folder over to your Spark cluster. You can use [SCP with your `my-key-pair.pem` file](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html) in order to do this.
 
 Thereafter, you will need to fill out the empty fields in the `dl.cfg` configuration file with your [AWS access key](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html) that allows you to connect to your S3 buckets.
+
+# Schema
+
+# Fact Table
+`songplays` - User activity data related to the `NextSong` event, extracted from both the `song_data` and `log_data` JSON files: `songplay_id`, `start_time`, `user_id`, `level`, `song_id`, `artist_id`, `session_id`, `location`, `user_agent`
+
+## Dimension Tables
+`users` - a list of users, extracted from the `log_data` JSON files: `user_id`, `first_name`, `last_name`, `gender`, `level`
+
+`songs` - a list of songs, extracted from the `song_data` JSON files: `song_id`, `title`, `artist_id`, `year`, `duration`
+
+`artists` - a list of artists, extracted from the `song_data` JSON files: `artist_id`, `name`, `location`, `lattitude`, longitude
+
+`time` - a list of timestamps, extracted from the `log_data` JSON files: `start_time`, `hour`, `day`, `week`, `month`, `year`, `weekday`
