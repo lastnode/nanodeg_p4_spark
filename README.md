@@ -2,7 +2,7 @@
 
 A part of the [Udacity Data Engineering Nanodegree](https://www.udacity.com/course/data-engineer-nanodegree--nd027), this [ETL](https://en.wikipedia.org/wiki/Extract,_transform,_load) project looks to collect and present user activity information for a fictional music streaming service called Sparkify. To do this, data is gathered from song information and application `.json` log files (which were generated from the [Million Song Dataset](http://millionsongdataset.com/) and from [eventsim](https://github.com/Interana/eventsim) respectively and given to us).
 
-These log files are stored in two [Amazon S3](https://aws.amazon.com/s3/) directories, and are loaded into an [Amazon EMR](https://aws.amazon.com/s3/) Spark cluster for processing. The `etl.py` script reads these files from S3, transforms them to create five different tables in Spark and writes them to partitioned parquet files in table directories on S3.
+These log files are stored in two [Amazon S3](https://aws.amazon.com/s3/) directories, and are loaded into an [Amazon EMR](https://aws.amazon.com/s3/) Spark cluster for processing. The `etl.py` script reads these files from S3, transforms them to create five different tables in Spark and writes them to partitioned parquet files in table directories on S3. Having these data stored as `.parquet` files means they can be easily loaded into Hadoop for analysis whenever required, meaning that the `.json` files will not need to be reprocessed in order to make use of this data.
 
 # Files
 ```
@@ -42,13 +42,13 @@ This will only load and transform a subset of the data and can help isolate issu
 ## Schema
 
 ### Fact Table
-`songplays` - a list of times users played a song, extracted from both the `song_data` and `log_data` JSON files: `songplay_id`, `start_time`, `user_id`, `level`, `song_id`, `artist_id`, `session_id`, `location`, `user_agent`
+- `songplays` - a list of times users played a song, extracted from both the `song_data` and `log_data` JSON files: `songplay_id`, `start_time`, `month`, `year`, `user_id`, `level`, `song_id`, `artist_id`, `session_id`, `location`, `user_agent`
 
 ### Dimension Tables
-`users` - a list of users, extracted from the `log_data` JSON files: `user_id`, `first_name`, `last_name`, `gender`, `level`
+- `users` - a list of users, extracted from the `log_data` JSON files: `user_id`, `first_name`, `last_name`, `gender`, `level`
 
-`songs` - a list of songs, extracted from the `song_data` JSON files: `song_id`, `title`, `artist_id`, `year`, `duration`
+- `songs` - a list of songs, extracted from the `song_data` JSON files: `song_id`, `title`, `artist_id`, `year`, `duration`
 
-`artists` - a list of artists, extracted from the `song_data` JSON files: `artist_id`, `name`, `location`, `lattitude`, longitude
+- `artists` - a list of artists, extracted from the `song_data` JSON files: `artist_id`, `name`, `location`, `lattitude`, longitude
 
-`time` - a list of timestamps, extracted from the `log_data` JSON files: `start_time`, `hour`, `day`, `week`, `month`, `year`, `weekday`
+- `time` - a list of timestamps, extracted from the `log_data` JSON files: `start_time`, `hour`, `day`, `week`, `month`, `year`, `weekday`
