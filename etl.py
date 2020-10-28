@@ -48,7 +48,7 @@ def create_spark_session():
     return spark
 
 
-def process_song_data(spark_session, input_data, output_data, cliargs):
+def process_song_data(spark, input_data, output_data, cliargs):
 
     """
     Loads `song_data` files from S3 into Spark, transforms them via Spark SQL 
@@ -59,7 +59,7 @@ def process_song_data(spark_session, input_data, output_data, cliargs):
     2) `artists`
 
     Paramters:
-    - spark_session - The spark session that this function will use to connect to Spark.
+    - spark - The spark session that this function will use to connect to Spark.
     - input_data - The S3a path where the `song_data` directory can be found.
     - output_data - Where the parquet files will be written to.
     - cliargs - The CLI arguments passed in from argparse. These arguments allow the
@@ -122,7 +122,7 @@ def process_song_data(spark_session, input_data, output_data, cliargs):
     artists_table.write.mode('overwrite').parquet(output_data + "artists/")
 
 
-def process_log_data(spark_session, input_data, output_data, cliargs):
+def process_log_data(spark, input_data, output_data, cliargs):
 
     """
     Loads `log_data` files from S3 into Spark, transforms them via Spark SQL 
@@ -134,7 +134,7 @@ def process_log_data(spark_session, input_data, output_data, cliargs):
     3) `songplays`
 
     Paramters:
-    - spark_session - The spark session that this function will use to connect to Spark.
+    - spark - The spark session that this function will use to connect to Spark.
     - input_data - The S3a path where the `song_data` directory can be found.
     - output_data - Where the parquet files will be written to.
     - cliargs - The CLI arguments passed in from argparse. These arguments allow the
@@ -246,12 +246,12 @@ def main():
 
     cliargs, _ = parser.parse_known_args()
 
-    spark_session = create_spark_session()
+    spark = create_spark_session()
     input_data = 's3a://udacity-dend/'
     output_data = 's3a://sparkifytest/'
    
-    process_song_data(spark_session, input_data, output_data, cliargs)    
-    process_log_data(spark_session, input_data, output_data, cliargs)
+    process_song_data(spark, input_data, output_data, cliargs)    
+    process_log_data(spark, input_data, output_data, cliargs)
 
 
 if __name__ == "__main__":
