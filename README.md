@@ -33,7 +33,7 @@ Thereafter, you will need to fill out the empty fields in the `dl.cfg` configura
 # Schema
 
 # Fact Table
-`songplays` - User activity data related to the `NextSong` event, extracted from both the `song_data` and `log_data` JSON files: `songplay_id`, `start_time`, `user_id`, `level`, `song_id`, `artist_id`, `session_id`, `location`, `user_agent`
+`songplays` - a list of times users played a song, extracted from both the `song_data` and `log_data` JSON files: `songplay_id`, `start_time`, `user_id`, `level`, `song_id`, `artist_id`, `session_id`, `location`, `user_agent`
 
 ## Dimension Tables
 `users` - a list of users, extracted from the `log_data` JSON files: `user_id`, `first_name`, `last_name`, `gender`, `level`
