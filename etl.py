@@ -268,7 +268,7 @@ def main():
     spark = create_spark_session()
 
     input_data = 's3a://udacity-dend/'
-    output_data = 's3a://sparkifytest/'
+    output_data = 's3a://sparkify-mw/'
 
     process_song_data(spark, input_data, output_data, cliargs)    
     process_log_data(spark, input_data, output_data, cliargs)
