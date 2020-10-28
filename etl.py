@@ -90,7 +90,7 @@ def process_song_data(spark, input_data, output_data, cliargs):
     else:
         song_df = spark.read.json(os.path.join(input_data, full_data_path))
 
-    # create Spark SQL `songs` table
+    # create Spark SQL `song_data` table
     song_df.createOrReplaceTempView("song_data")
 
     # extract columns to create songs table
@@ -165,9 +165,10 @@ def process_log_data(spark, input_data, output_data, cliargs):
     else:
         logs_df = spark.read.json(os.path.join(input_data, full_data_path))
 
-    # create Spark SQL `logs` table
+    # Filter data frame to only include `NextSong` events.
     logs_df = logs_df.filter(logs_df.page == 'NextSong')
 
+    # create Spark SQL `log_data` table
     logs_df.createOrReplaceTempView("log_data")
     
     # extract columns for users table    
