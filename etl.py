@@ -226,8 +226,8 @@ def process_log_data(spark, input_data, output_data, cliargs):
                                                                 logs.artist = songs.artist_name                     
 
     """)
-    # write songplays table to parquet files partitioned by year and month
 
+    # write songplays table to parquet files partitioned by year and month
     songplays_table.write.mode('overwrite').partitionBy("year", "month").parquet(output_data + "songplays/")
 
 def main():
